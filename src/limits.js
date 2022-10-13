@@ -1,6 +1,6 @@
 /**
- * @title const_stim
- * @description Grey level detection threshold estimation by constant stimuli
+ * @title limits
+ * @description Grey level detection threshold estimation by method of limits
  * @version 0.1.0
  *
  * @assets assets/
@@ -51,21 +51,24 @@ export async function run({ assetPaths, input = {}, environment, title, version 
              `,
              
             `<p>This experiment will use the
-            <a href="https://en.wikipedia.org/wiki/Psychophysics#Method_of_constant_stimuli">Method
-            of Constant Stimuli</a><br>
+            <a href="https://en.wikipedia.org/wiki/Psychophysics#Method_of_limits">Method
+            of Limits</a><br>
             to estimate a visual detection threshold.</p>
             <p>You will be shown a sequence of stimuli consisting<br>
-            of grey circular spots of different brightnesses, against a<br>
-            black background. Sometimes the spot will be clearly visible, sometimes<br>
-            it will be dim, and sometimes there may be no spot at all.</p>
+            of grey circular spots of varying brightnesses, against a<br>
+            black background. In the first part of the experiment the spot<br>
+            will start out bright and get slowly dimmer, while in the<br>
+            second part the spot will start out dark and get brighter.<br>
+            Both parts will repeat three times.</p>
             <p>After each stimulus you will be asked to click a button to<br>
             report whether you saw a spot.</p>
             `,
             
-            `<p>There are 80 trials in this experiment and it will take a few<br>
-            minutes to complete.</p>
-            <p>Try to focus on the experiment -- you might find it helpful to run<br>
-            your browser in full screen mode.</p>
+            `<p>There are approximately 60 trials in this experiment<br>
+            (the exact number may vary depending on your responses)<br>
+            and it will take a few minutes to complete.</p>
+            <p>Try to focus on the experiment -- you might find it helpful to<br>
+            run your browser in full screen mode.</p>
             <p>Answer honestly but do not worry about occasional errors and<br>
             uncertainty. <b>This is not a test!</b>
             `,
@@ -176,9 +179,9 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     
     // configure experiment in one place for dev convenience
     const GREY_MIN = 0;
-    const GREY_MAX = 6;
-    const GREY_STEP = 2;
-    const REPS = 1;
+    const GREY_MAX = 20;
+    const GREY_STEP = 1;
+    const REPS = 3;
     
     /* set of grey values to be tested for spot visibility */
     var colours = [];
@@ -188,16 +191,36 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     }
     
     /* run a bunch of trials */
-    const spots =
+    const spots_up =
     {
         timeline: [ pause, spot, pause, query ],
         timeline_variables: colours,
-        randomize_order: true,
+        data: { direction : 'up' },
+        on_finish: function (data)
+        {
+            if ( data.response == 1 )  { jsPsych.endCurrentTimeline(); }
+        }
+    };
+    
+    const spots_down =
+    {
+        timeline: [ pause, spot, pause, query ],
+        timeline_variables: colours.slice().reverse(),
+        data: { direction : 'down' },
+        on_finish: function (data)
+        {
+            if ( data.response == 0 ) { jsPsych.endCurrentTimeline(); }
+        }
+    };
+    
+    const spots_up_down =
+    {
+        timeline: [ spots_up, spots_down ],
         repetitions: REPS
     };
     
     timeline.push(set_to_black);
-    timeline.push(spots);
+    timeline.push(spots_up_down);
     timeline.push(unset_from_black);
     
     /* global vars for our trial data extract */
@@ -212,7 +235,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
                 Based on what you know from the lectures, does this look<br>
                 like a reasonable psychometric function?</p>
              <p>
-             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), 'comp160_lab1_const_stim.csv');">Click
+             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), 'comp160_lab1_limits.csv');">Click
                 here</a> to download your response data in CSV format.</p>
              <p>Press any key to complete the experiment. Thank you!</p>
              <div style="display: flex; justify-content: center;">
@@ -222,7 +245,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
              </div>`,
         on_load: function ()
         {
-            trials = jsPsych.data.get().filter({task: 'response'}).filterColumns(['rt', 'colour', 'response', 'time_elapsed']);
+            trials = jsPsych.data.get().filter({task: 'response'}).filterColumns(['rt', 'direction', 'colour', 'response', 'time_elapsed']);
             sessionStorage.setItem('csv', trials.csv());
             
             let pts = []
