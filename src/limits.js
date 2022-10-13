@@ -57,8 +57,8 @@ export async function run({ assetPaths, input = {}, environment, title, version 
             <p>You will be shown a sequence of stimuli consisting<br>
             of grey circular spots of varying brightnesses, against a<br>
             black background. In the first part of the experiment the spot<br>
-            will start out bright and get slowly dimmer, while in the<br>
-            second part the spot will start out dark and get brighter.<br>
+            will start out dark and get slowly brighter, while in the<br>
+            second part the spot will start out bright and get dimmer.<br>
             Both parts will repeat three times.</p>
             <p>After each stimulus you will be asked to click a button to<br>
             report whether you saw a spot.</p>

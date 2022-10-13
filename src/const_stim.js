@@ -176,9 +176,9 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     
     // configure experiment in one place for dev convenience
     const GREY_MIN = 0;
-    const GREY_MAX = 6;
-    const GREY_STEP = 2;
-    const REPS = 1;
+    const GREY_MAX = 20;
+    const GREY_STEP = 1;
+    const REPS = 4;
     
     /* set of grey values to be tested for spot visibility */
     var colours = [];
