@@ -12,6 +12,8 @@ Currently available experiments are:
   [method of limits](https://en.wikipedia.org/wiki/Psychophysics#Method_of_limits)
 * `const_stim`: estimating the threshold of detection for light spots against a
   dark background using the [method of constant stimuli](https://en.wikipedia.org/wiki/Psychophysics#Method_of_constant_stimuli)
+* `relative`: estimating the relative brightness of two light spots.
+* `stereo`: estimating the (left/right) location of sounds.
 
 (This is very much an early work in progress, more experiments will be added soon!)
 

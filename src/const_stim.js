@@ -13,7 +13,7 @@ import { initJsPsych } from "jspsych";
 import { saveAs } from 'file-saver';
 
 // local shared code
-import { single_spot, spots_setup, spots_finish, spots_chart } from './shared/experimenta.js';
+import { single_spot, spots_setup, spots_finish, single_dataset_chart } from './shared/experimenta.js';
 
 /**
  * This function will be executed by jsPsych Builder and is expected to run the jsPsych experiment
@@ -23,7 +23,7 @@ import { single_spot, spots_setup, spots_finish, spots_chart } from './shared/ex
 export async function run({ assetPaths, input = {}, environment, title, version })
 {
     // kludgy configuration switch for testing
-    const QUICK_TEST = true;
+    const QUICK_TEST = false;
     const [ GREY_MIN, GREY_MAX, GREY_STEP, REPS ] = QUICK_TEST ? [ 5, 15, 3, 1 ] : [ 0, 20, 1, 4 ];
     
     const instructions = QUICK_TEST ? null :
@@ -59,7 +59,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
         But you can always run the experiment again to obtain new data.</p>
         `,
 
-        `<p>Press <b>Next</b> to begin the experiment.</p>`
+//        `<p>Press <b>Next</b> to begin the experiment.</p>`
     ];
 
     const [ jsPsych, timeline ] = spots_setup ( instructions );
@@ -82,7 +82,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
 
     timeline.push(spots);
     timeline.push(...spots_finish());
-    timeline.push( spots_chart(jsPsych, colours));
+    timeline.push( single_dataset_chart(jsPsych, colours, {download_name: 'comp160_lab1_const_stim.csv'}) );
 
     await jsPsych.run(timeline);
 

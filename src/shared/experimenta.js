@@ -6,11 +6,12 @@ import CanvasKeyboardResponsePlugin from "@jspsych/plugin-canvas-keyboard-respon
 import CallFunctionPlugin from "@jspsych/plugin-call-function";
 import InstructionsPlugin from "@jspsych/plugin-instructions";
 import FullscreenPlugin from "@jspsych/plugin-fullscreen";
+import PreloadPlugin from "@jspsych/plugin-preload";
 import { initJsPsych } from "jspsych";
 
 import Chart from 'chart.js/auto';
 
-import { show_spot, set_page_background, clear_page_background  } from './drawing.js';
+import { show_spot, set_page_background, set_body_text  } from './drawing.js';
 
 
 export function single_spot ( jsPsych )
@@ -51,10 +52,21 @@ export function single_spot ( jsPsych )
     return [ pause, spot, pause, query ];
 }
 
-export function spots_setup ( pages )
+export function spots_setup ( pages, assetPaths=null )
 {
     const jsPsych = initJsPsych();
     const timeline = [];
+    
+    // preload if needed
+    if ( assetPaths )
+    {
+        timeline.push({
+            type: PreloadPlugin,
+            images: assetPaths.images,
+            audio: assetPaths.audio,
+            video: assetPaths.video,
+        });
+    }
     
     // show instructions, if provided
     if ( pages )
@@ -79,7 +91,18 @@ export function spots_setup ( pages )
     // set background to black
     timeline.push({
         type: CallFunctionPlugin,
-        func: function () { set_page_background("#000"); }
+        func: function ()
+        {
+            set_page_background("#000");
+            set_body_text("#888");
+        }
+    });
+    
+    timeline.push({
+        type: HtmlKeyboardResponsePlugin,
+        stimulus: "",
+        choices: "NO_KEYS",
+        trial_duration: 1000,
     });
     
     return [ jsPsych, timeline ];
@@ -92,7 +115,11 @@ export function spots_finish ()
         // reset background
         {
             type: CallFunctionPlugin,
-            func: clear_page_background
+            func: function ()
+            {
+                set_page_background("#fff");
+                set_body_text("#000");
+            }
         },
         
         // exit fullscreen
@@ -105,26 +132,29 @@ export function spots_finish ()
     return timeline;
 }
 
-export function spots_chart ( jsPsych, colours,
-                              columns = ['rt', 'direction', 'colour', 'response', 'time_elapsed'],
-                              xlab = 'Stimulus',
-                              ylab = '% Detection' )
+export function single_dataset_chart ( jsPsych, stims,
+    {
+        stim_name = 'colour',
+        blurb = 'The chart below shows your mean detection vs stimulation intensity.',
+        columns = ['rt', 'direction', 'colour', 'response', 'time_elapsed'],
+        xlab = 'Stimulus',
+        ylab = '% Detection',
+        factor = 100,
+        download_name = 'responses.csv'
+    } = {} )
 {
     const charting =
     {
         type: HtmlKeyboardResponsePlugin,
         stimulus:
-            `<p>
-                The chart below shows your mean detection vs stimulus intensity.<br>
-                Based on what you know from the lectures, does this look<br>
-                like a reasonable psychometric function?</p>
-             <p>
-             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), 'comp160_lab1_const_stim.csv');">Click
+            `<p>${blurb}</p>
+             <p />
+             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), '${download_name}');">Click
                 here</a> to download your response data in CSV format.</p>
              <p>Press any key to complete the experiment. Thank you!</p>
              <div style="display: flex; justify-content: center;">
              <div class="chart-container" style="position: relative; height:40vh; width:60vw;">
-                <canvas id="spot_chart"></canvas>
+                <canvas id="chart_canvas"></canvas>
              </div>
              </div>`,
         on_load:  function ()
@@ -134,10 +164,10 @@ export function spots_chart ( jsPsych, colours,
         
             let pts = []
         
-            for ( let cc of colours )
+            for ( let stim of stims )
             {
-                let cc_trials = trials.filter({ colour: cc.colour });
-                pts.push( { x: cc.colour, y: 100 * cc_trials.select('response').mean() } );
+                let stim_trials = trials.filter({ [stim_name]: stim[stim_name] });
+                pts.push( { x: stim[stim_name], y: factor * stim_trials.select('response').mean() } );
             }
         
             const data =
@@ -165,7 +195,7 @@ export function spots_chart ( jsPsych, colours,
             };
         
             const config = { type: 'scatter', data: data, options: options };
-            const chart = new Chart( document.getElementById('spot_chart'), config );
+            const chart = new Chart( document.getElementById('chart_canvas'), config );
         }
     };
     
