@@ -13,7 +13,7 @@ import { initJsPsych } from "jspsych";
 import { saveAs } from 'file-saver';
 
 // local shared code
-import { single_spot, spots_setup, spots_finish, single_dataset_chart } from './shared/experimenta.js';
+import { single_spot, spots_setup, spots_finish, single_dataset_chart, goto_url } from './shared/experimenta.js';
 
 
 /**
@@ -24,7 +24,10 @@ import { single_spot, spots_setup, spots_finish, single_dataset_chart } from './
 export async function run({ assetPaths, input = {}, environment, title, version })
 {
     // kludgy configuration switch for testing
-    const QUICK_TEST = false;
+    const query = new URLSearchParams(window.location.search);
+    const QUICK_TEST = query.has('quick');
+    const RETURN_PAGE = query.has('home') ? query.get('home') : '/';
+
     const [ GREY_MIN, GREY_MAX, GREY_STEP, REPS ] = QUICK_TEST ? [ 5, 15, 3, 1 ] : [ 0, 20, 1, 3 ];
     
     const instructions = QUICK_TEST ? null :
@@ -112,10 +115,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     timeline.push(spots_up_down);
     timeline.push(...spots_finish());
     timeline.push(single_dataset_chart(jsPsych, colours, {download_name:'comp160_lab1_limits.csv'}));
+    timeline.push( goto_url(RETURN_PAGE) );
 
     await jsPsych.run(timeline);
 
     // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
     // if you handle results yourself, be it here or in `on_finish()`)
-    return jsPsych;
+    //return jsPsych;
 }

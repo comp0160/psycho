@@ -132,6 +132,11 @@ export function spots_finish ()
     return timeline;
 }
 
+export function goto_url ( url )
+{
+    return { type: CallFunctionPlugin, func: function () { window.location = url; }};
+}
+
 export function single_dataset_chart ( jsPsych, stims,
     {
         stim_name = 'colour',

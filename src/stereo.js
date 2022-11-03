@@ -16,7 +16,7 @@ import { initJsPsych } from "jspsych";
 import { saveAs } from 'file-saver';
 
 // local shared code
-import { spots_setup, spots_finish, single_dataset_chart } from './shared/experimenta.js';
+import { spots_setup, spots_finish, single_dataset_chart, goto_url } from './shared/experimenta.js';
 
 /**
  * This function will be executed by jsPsych Builder and is expected to run the jsPsych experiment
@@ -26,7 +26,10 @@ import { spots_setup, spots_finish, single_dataset_chart } from './shared/experi
 export async function run({ assetPaths, input = {}, environment, title, version })
 {
     // kludgy configuration switch for testing
-    const QUICK_TEST = false;
+    const query = new URLSearchParams(window.location.search);
+    const QUICK_TEST = query.has('quick');
+    const RETURN_PAGE = query.has('home') ? query.get('home') : '/';
+
     const QUICK_TRIALS = 5;
 
     const instructions = QUICK_TEST ? null :
@@ -133,9 +136,10 @@ export async function run({ assetPaths, input = {}, environment, title, version 
             ylab: 'Estimate',
             factor: 1
         }));
+    timeline.push( goto_url(RETURN_PAGE) );
     await jsPsych.run(timeline);
 
     // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
     // if you handle results yourself, be it here or in `on_finish()`)
-    return jsPsych;
+    //return jsPsych;
 }
