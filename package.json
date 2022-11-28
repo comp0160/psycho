@@ -18,6 +18,7 @@
     "@jspsych/plugin-instructions": "^1.1.2",
     "@jspsych/plugin-preload": "^1.1.1",
     "chart.js": "^3.9.1",
+    "chroma-js": "^2.4.2",
     "file-saver": "^2.0.5",
     "jspsych": "^7.2.3"
   },
