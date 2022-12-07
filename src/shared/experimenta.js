@@ -179,9 +179,9 @@ export function single_dataset_chart ( jsPsych, stims,
             {
                 datasets: [{
                     label: 'Spot Visibility',
-                    backgroundColor: 'rgb(255, 99, 132)',
+                    backgroundColor: '#1f78b4aa',
                     radius: 10,
-                    borderColor: 'rgb(255, 99, 132)',
+                    borderColor: '#1f78b4aa',
                     data: pts,
                 }],
             };
@@ -196,6 +196,169 @@ export function single_dataset_chart ( jsPsych, stims,
                 plugins:
                 {
                     legend: { display: false }
+                }
+            };
+            
+            const config = { type: 'scatter', data: data, options: options };
+            const chart = new Chart( document.getElementById('chart_canvas'), config );
+        }
+    };
+    
+    return charting;
+}
+
+export function multi_dataset_chart ( jsPsych, groups,
+    {
+        stim_name = 'colour',
+        blurb = 'The chart below shows your mean detection vs stimulation intensity.',
+        columns = ['rt', 'direction', 'colour', 'response', 'time_elapsed'],
+        xlab = 'Stimulus',
+        ylab = '% Detection',
+        factor = 100,
+        download_name = 'responses.csv',
+        group_name = 'group',
+        colours = [ '#e31a1caa', '#1f78b4aa', '#b2df8aaa', '#fdbf6faa' ],
+        show_legend = true,
+    } = {} )
+{
+    const charting =
+    {
+        type: HtmlKeyboardResponsePlugin,
+        stimulus:
+            `<p>${blurb}</p>
+             <p />
+             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), '${download_name}');">Click
+                here</a> to download your response data in CSV format.</p>
+             <p>Press any key to complete the experiment. Thank you!</p>
+             <div style="display: flex; justify-content: center;">
+             <div class="chart-container" style="position: relative; height:40vh; width:60vw;">
+                <canvas id="chart_canvas"></canvas>
+             </div>
+             </div>`,
+        on_load:  function ()
+        {
+            let trials = jsPsych.data.get().filter({task: 'response'}).filterColumns(columns);
+            sessionStorage.setItem('csv', trials.csv());
+            
+            const data = { datasets: [] };
+            
+            for ( let ii = 0; ii < groups.length; ++ii )
+            {
+                let group = groups[ii];
+                let group_trials = trials.filter({ [group_name]: group });
+                
+                let group_stims = group_trials.select(stim_name).values;
+                let group_responses = group_trials.select('response').values;
+                
+                let pts = [];
+                
+                for ( let jj = 0; jj < group_stims.length; ++jj )
+                {
+                    pts.push( { x: group_stims[jj], y: factor * group_responses[jj] } );
+                }
+                
+                console.log(group_stims, group_responses);
+                
+                data.datasets.push(
+                    {
+                        label: group,
+                        backgroundColor: colours[ii],
+                        radius: 10,
+                        borderColor: colours[ii],
+                        data: pts,
+                    }
+                );
+                
+                console.log(data);
+            }
+            
+            const options =
+            {
+                scales:
+                {
+                    x: { title: { display: true, text: xlab } },
+                    y: { title: { display: true, text: ylab } }
+                },
+                plugins:
+                {
+                    legend: { display: show_legend }
+                }
+            };
+        
+            const config = { type: 'scatter', data: data, options: options };
+            const chart = new Chart( document.getElementById('chart_canvas'), config );
+        }
+    };
+    
+    return charting;
+}
+
+
+export function simple_scatter ( jsPsych,
+    {
+        stim_name = 'colour',
+        blurb = 'The chart below shows your detection vs stimulation intensity.',
+        columns = ['rt', 'direction', 'colour', 'response', 'time_elapsed'],
+        xlab = 'Stimulus',
+        ylab = '% Detection',
+        factor = 100,
+        download_name = 'responses.csv',
+        colour = '#e31a1caa',
+        show_legend = false,
+        label = 'responses',
+        response_name = 'response',
+        task_name = 'response',
+    } = {} )
+{
+    const charting =
+    {
+        type: HtmlKeyboardResponsePlugin,
+        stimulus:
+            `<p>${blurb}</p>
+             <p />
+             <p><a href="#" onclick="saveAs(new Blob([sessionStorage.getItem('csv')], {type: 'text/csv;charset=utf-8'}), '${download_name}');">Click
+                here</a> to download your response data in CSV format.</p>
+             <p>Press any key to complete the experiment. Thank you!</p>
+             <div style="display: flex; justify-content: center;">
+             <div class="chart-container" style="position: relative; height:40vh; width:60vw;">
+                <canvas id="chart_canvas"></canvas>
+             </div>
+             </div>`,
+        on_load:  function ()
+        {
+            let trials = jsPsych.data.get().filter({task: task_name}).filterColumns(columns);
+            sessionStorage.setItem('csv', trials.csv());
+            
+            let stims = trials.select(stim_name).values;
+            let responses = trials.select(response_name).values;
+            let pts = [];
+            
+            for ( let ii = 0; ii < stims.length; ++ii )
+            {
+                pts.push( { x: stims[ii], y: factor * responses[ii] } );
+            }
+
+            const data =
+            { 'datasets' :
+                [{
+                    label: label,
+                    backgroundColor: colour,
+                    radius: 10,
+                    borderColor: colour,
+                    data: pts,
+                }],
+            };
+            
+            const options =
+            {
+                scales:
+                {
+                    x: { title: { display: true, text: xlab } },
+                    y: { title: { display: true, text: ylab } }
+                },
+                plugins:
+                {
+                    legend: { display: show_legend }
                 }
             };
         
