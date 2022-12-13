@@ -297,11 +297,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     // columns = [ 'rt', 'colour', 'idx', 'word', 'congruence', 'target', 'response', 'correct_response', 'time_elapsed' ]
     
     //timeline.push( single_dataset_chart(jsPsych, colours, {download_name: 'comp160_lab2_stroop.csv'}) );
-    //timeline.push( goto_url(RETURN_PAGE) );
+    timeline.push( goto_url(RETURN_PAGE) );
 
     await jsPsych.run(timeline);
 
     // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
     // if you handle results yourself, be it here or in `on_finish()`)
-    return jsPsych;
+    //return jsPsych;
 }

@@ -13,9 +13,12 @@ Currently available experiments are:
 * `const_stim`: estimating the threshold of detection for light spots against a
   dark background using the [method of constant stimuli](https://en.wikipedia.org/wiki/Psychophysics#Method_of_constant_stimuli)
 * `relative`: estimating the relative brightness of two light spots.
+* `contrast`: estimating contrast ratio between colours.
+* `legibility`: evaluating the legibility of text for different colour combinations.
+* `stroop`: demonstrating semantic interference between words and appearance.
 * `stereo`: estimating the (left/right) location of sounds.
 
-(This is very much an early work in progress, more experiments will be added soon!)
+(This is still very much a work in progress, more experiments will be added soon!)
 
 ## Usage
 
@@ -45,6 +48,5 @@ Pack an experiment for basic web deployment like this:
 npm run build <name>
 ```
 
-In practice we probably won't deploy single experiments like that but will
-instead wrap everything in a labs index page that routes to the sets for each
-week. Details of that are TBD, though.
+The built experiments are deployed to the [GitHub Pages site](https://comp0160.github.io)
+under `/experiments/` and linked from lab-specific index pages.

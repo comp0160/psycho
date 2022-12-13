@@ -133,11 +133,11 @@ export async function run({ assetPaths, input = {}, environment, title, version 
             ylab: 'Legibility Rating',
             factor: 1,
         }));
-    //timeline.push( goto_url(RETURN_PAGE) );
+    timeline.push( goto_url(RETURN_PAGE) );
 
     await jsPsych.run(timeline);
 
     // Return the jsPsych instance so jsPsych Builder can access the experiment results (remove this
     // if you handle results yourself, be it here or in `on_finish()`)
-    return jsPsych;
+    //return jsPsych;
 }
