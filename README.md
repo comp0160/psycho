@@ -17,6 +17,8 @@ Currently available experiments are:
 * `legibility`: evaluating the legibility of text for different colour combinations.
 * `stroop`: demonstrating semantic interference between words and appearance.
 * `stereo`: estimating the (left/right) location of sounds.
+* `tafc`: comparing side by side spot brightness as a two alternative forced choice
+* `tifc`: comparing sequential spot brightness as a two interval forced choice
 
 (This is still very much a work in progress, more experiments will be added soon!)
 
