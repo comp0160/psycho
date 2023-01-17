@@ -10,10 +10,10 @@
 import "../styles/main.scss";
 
 import HtmlKeyboardResponsePlugin from "@jspsych/plugin-html-keyboard-response";
-
+import { saveAs } from 'file-saver';
 
 // local shared code
-import { single_spot, spots_setup, spots_finish, single_dataset_chart, goto_url } from './shared/experimenta.js';
+import { single_spot, spots_setup, spots_finish, simple_scatter, goto_url } from './shared/experimenta.js';
 
 /**
  * This function will be executed by jsPsych Builder and is expected to run the jsPsych experiment
@@ -154,6 +154,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
             idx: jsPsych.timelineVariable('idx'),
             word: jsPsych.timelineVariable('word'),
             congruence: jsPsych.timelineVariable('congruence'),
+            congruence_num: jsPsych.timelineVariable('congruence_num'),
             correct_response: jsPsych.timelineVariable('correct_response'),
         },  
         choices: CHOICES,
@@ -172,6 +173,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
             colour: COLOURS[idx],
             word: shuffled_others[ii],
             congruence: 'neutral',
+            congruence_num: 0,
             target: 'colour',
             correct_response: CHOICES[ii],
         } );
@@ -190,6 +192,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
                 colour: COLOURS[ii],
                 word: COLOUR_NAMES[jj],
                 congruence: (ii==jj) ? 'congruent' : 'incongruent',
+                congruence_num: (ii==jj) ? 1 : -1,
                 target: 'colour',
                 correct_response: CHOICES[ii],
             });
@@ -279,6 +282,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
                 colour: COLOURS[ii],
                 word: COLOUR_NAMES[jj],
                 congruence: (ii==jj) ? 'congruent' : 'incongruent',
+                congruence_num: (ii==jj) ? 1 : -1,
                 target: 'word',
                 correct_response: CHOICES[jj],
             });
@@ -294,9 +298,19 @@ export async function run({ assetPaths, input = {}, environment, title, version 
     
     timeline.push(...spots_finish());
     
-    // columns = [ 'rt', 'colour', 'idx', 'word', 'congruence', 'target', 'response', 'correct_response', 'time_elapsed' ]
     
-    //timeline.push( single_dataset_chart(jsPsych, colours, {download_name: 'comp160_lab2_stroop.csv'}) );
+    timeline.push( simple_scatter(jsPsych,
+        {
+            download_name: 'comp160_lab2_stroop.csv',
+            blurb: 'The chart below shows your reaction time vs congruence.',
+            columns: [ 'rt', 'colour', 'idx', 'word', 'congruence', 'congruence_num', 'target', 'response', 'correct_response', 'time_elapsed' ],
+            stim_name: 'congruence_num',
+            response_name: 'rt',
+            xlab: 'Congruence',
+            ylab: 'Reaction Time (ms)',
+            factor: 1,
+        }) );
+    
     timeline.push( goto_url(RETURN_PAGE) );
 
     await jsPsych.run(timeline);
