@@ -21,7 +21,8 @@
     "chart.js": "^3.9.1",
     "chroma-js": "^2.4.2",
     "file-saver": "^2.0.5",
-    "jspsych": "^7.2.3"
+    "jspsych": "^7.2.3",
+    "tone": "^14.7.77"
   },
   "devDependencies": {
     "jspsych-builder": "^4.3.1"

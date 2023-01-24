@@ -69,7 +69,7 @@ export async function run({ assetPaths, input = {}, environment, title, version 
         type: AudioButtonResponsePlugin,
         stimulus: 'assets/audio/silence.mp3',
         prompt:
-        `<p>Some browsers prevent audio playback without user<br>
+        `<p>Most browsers prevent audio playback without user<br>
         interaction. Please click the button to ensure sounds<br>
         can be played.</p>`,
         choices: ['Allow Audio']
